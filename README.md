@@ -1,8 +1,8 @@
-## Qualcomm LTE
+# Qualcomm LTE
 Get my LTE Modem working
 
 
-#1. Hardware
+## 1. Hardware
 The main problem was to use this modem which is a Qualcomm MDM9200, but is an OEM modem and is not recognized by Linux Kernel module.
 
 If you are in the same situation, lsusb and usb-devices command are your friend, then the thing is to bind the correct driver to the right device :
@@ -104,7 +104,7 @@ nmcli conn down "My GPRS Connection"              # Disable connection
 mmcli -b 0    # Give detailed information about bearer index 0 (Ip information, LTE network, etc...)
 ```
 
-#2. Software, Security and Routing
+## 2. Software, Security and Routing
 Then, as my project is to make this modem working on a small OrangePi zero, and to connect it to my home network I will add a part of well known IP forwarding and IPTables.
 
 sysctl.conf
@@ -120,6 +120,6 @@ iptables IPV4 ruleset
 iptables IPV6 is dropping all. Will see IPV6 later.
 
 
-#3. Monitoring system and LTE
+## 3. Monitoring system and LTE
 
 
