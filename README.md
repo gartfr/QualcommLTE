@@ -2,10 +2,10 @@
 Get my LTE Modem working
 
 
-The main problem was to use this modem which is a Qualcomm MDM9200 but is an OEM modem and is not recognizes by Linux Kernel module.
+#1. Hardware
+The main problem was to use this modem which is a Qualcomm MDM9200, but is an OEM modem and is not recognized by Linux Kernel module.
 
 If you are in the same situation, lsusb and usb-devices command are your friend, then the thing is to bind the correct driver to the right device :
-
 
 ```
 # rc.local LTE Modem Custom
@@ -19,8 +19,6 @@ echo "3-1:1.3" > /sys/bus/usb/drivers/qmi_wwan/bind
 modprobe option
 echo "0408 ea24" > /sys/bus/usb-serial/drivers/option1/new_id
 #
-#
-echo Y > /sys/class/net/wwan0/qmi/raw_ip
 ```
 
 1) Load the driver QMI
@@ -29,7 +27,6 @@ echo Y > /sys/class/net/wwan0/qmi/raw_ip
 4) Just bind device 3 which is the right one who has to get qmi_wwan capabilities
 5) Load option driver
 6) Bind option driver to the device, it will fill up all remaining subdevice, which is correct.
-7) Add parameter to QMI in order to push the device interface in the right mode.
 
 It will give the following result :
 
@@ -58,7 +55,7 @@ It will give the following result :
 [   26.531751] usb 3-1: GSM modem (1-port) converter now attached to ttyUSB2'
 ```
 
-Some QMI Cli command to help :
+Some QMI Cli command to help check the modem status :
 ```
 qmicli --device=/dev/cdc-wdm0 --device-open-proxy --dms-get-ids
 qmicli --device=/dev/cdc-wdm0 --device-open-proxy --dms-get-revision
@@ -81,26 +78,48 @@ qmicli --device=/dev/cdc-wdm0 --device-open-proxy --dms-uim-set-pin-protection=P
 
 If all, or most of all are working then the modem is recognized as it should and we can go further :
 ```
-mmcli -L
-mmcli -m 0
+mmcli -L      # List recognized modem
+mmcli -m 0    # Give detailed information about modem index 0
 ```
 The lines above to check if the modem is corectly seen by the system.
 
-If OK, just play arounf the NetworkManager to create a new connection profile. It should be easy as the modem is correctly detected.
+If OK, just play around the NetworkManager to create a new connection profile. It should be easy as the modem is correctly detected.
 
 ```
-I will try to add detail about nmcli !
+nmcli connection edit type gsm con-name "My GPRS Connection"
+nmcli> print
+nmcli> set connection.interface-name cdc-wdm0                   # "Primary Port" when doing mmcli -m 0 
+nmcli> set gsm.pin 0000
+nmcli> set connection.autoconnect yes
+nmcli> set gsm.apn bestone.com
 ```
 
+The connection is now created ans in autoconnect mode so it should already be is state connected :
+```
+nmcli conn show                                   # Display connection status
+nmcli conn up "My GPRS Connection"                # Activate connection (if not autoconnect mode)
+nmcli conn down "My GPRS Connection"              # Disable connection
+```
+```
+mmcli -b 0    # Give detailed information about bearer index 0 (Ip information, LTE network, etc...)
+```
+
+#2. Software, Security and Routing
 Then, as my project is to make this modem working on a small OrangePi zero, and to connect it to my home network I will add a part of well known IP forwarding and IPTables.
 
+sysctl.conf
 ```
-For some more details
+
 ```
 
+iptables IPV4 ruleset
+```
+
+```
+
+iptables IPV6 is dropping all. Will see IPV6 later.
 
 
-
-
+#3. Monitoring system and LTE
 
 
