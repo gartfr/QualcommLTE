@@ -122,4 +122,7 @@ iptables IPV6 is dropping all. Will see IPV6 later.
 
 ## 3. Monitoring system and LTE
 
-
+SNMP Daemon
+Monitor Connection status
+- connectivity
+- radio status
