@@ -221,3 +221,7 @@ And there we are !
 
 ![alt text](snmp_lte_router_localdomain_opi_extend-day.png)
 
+
+## BIRD
+The second part of the project is to add BIRD and use OSPF protocol to advertise the default gateway and use this LTE Internet connection as a backup to my FTTH connection.
+
