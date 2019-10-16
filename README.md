@@ -222,6 +222,38 @@ And there we are !
 ![alt text](snmp_lte_router_localdomain_opi_extend-day.png)
 
 
-## BIRD
+## 4. BIRD
 The second part of the project is to add BIRD and use OSPF protocol to advertise the default gateway and use this LTE Internet connection as a backup to my FTTH connection.
 
+add this to bird.conf should do the trick :
+
+```
+router id 192.168.254.14;
+
+protocol device {
+        scan time 10;
+}
+
+protocol kernel {
+	import all;
+        export all;
+        scan time 15;
+	learn;
+}
+
+
+protocol ospf {
+        import all;
+	export all;
+        area 0 {
+                interface "eth0" {
+                        cost 1000;
+                        type pointopoint;
+                        hello 10; retransmit 2; wait 10; dead 40;
+                };
+
+        };
+}
+```
+
+I will add ospf passphrase security :
