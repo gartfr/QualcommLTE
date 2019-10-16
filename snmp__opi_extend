@@ -1,0 +1,141 @@
+#!/bin/sh
+# -*- sh -*-
+# -------------------------------------------------------
+# Munin node script
+#
+# Monitor the internal temperature of Opi
+#
+# Parameters :
+#   $1 : none, "snmpconf" or "config"
+#
+# 12/10/2019, V1.0 - Creation by gartox
+# -------------------------------------------------------
+
+: << =cut
+
+=head1 NAME
+
+snmp__opi_temp - Munin plugin to monitor the internal temperature Opi
+
+=head1 APPLICABLE SYSTEMS
+
+Any OPI with snmp extend
+
+=head1 CONFIGURATION
+
+OPI with snmp extend
+This plugin uses public community.
+
+=head1 INTERPRETATION
+
+The temperature in degree celsius for Opi
+The LTE Signal Quality
+
+=head1 MIB INFORMATION
+
+This plugin requires support for extended snmp-temperature MIBs.
+
+=head1 MAGIC MARKERS
+
+  #%# family=snmpauto
+  #%# capabilities=snmpconf
+
+=head1 VERSION
+
+  $Id$
+
+=head1 BUGS
+
+None known.
+
+=head1 AUTHOR
+
+gartox
+
+=head1 LICENSE
+
+GPLv2.
+
+=cut
+
+# define warning and critical temperature levels
+CPU_WARNING="60"
+CPU_CRITICAL="70"
+
+# -------------------------------------------------------
+# Configure all MIBs adresses
+# -------------------------------------------------------
+
+# extended MIB for temperature
+MIB_SIGNAL="1.3.6.1.4.1.8072.1.3.2.3.1.2.15.111.112.105.95.108.116.101.95.113.117.97.108.105.116.121"
+MIB_TEMP="1.3.6.1.4.1.8072.1.3.2.3.1.2.8.111.112.105.95.116.101.109.112"
+
+# -------------------------------------------------------
+# Get NAS address
+# -------------------------------------------------------
+
+# get nas name from script name
+NAS_IP=`basename $0 | cut -d'_' -f2`
+
+# -------------------------------------------------------
+# Read all MIBs data from the NAS
+# -------------------------------------------------------
+
+# if not in autoconf process, read SNMP data
+if [ "$1" != "snmpconf" ]; then
+  # read SNMP MIB
+  MIB_RESULT=`snmpget -v2c -One -c gartsnet $NAS_IP $MIB_TEMP $MIB_SIGNAL`
+
+  # get values from result
+  VALUE_TEMP=`echo $MIB_RESULT | sed 's/^.*'$MIB_TEMP'[ =:STRING]*"\([0-9]*\)".*$/\1/g'`
+  VALUE_SIGNAL=`echo $MIB_RESULT | sed 's/^.*'$MIB_SIGNAL'[ =:STRING]*"\([0-9]*\)".*$/\1/g'`
+fi
+
+# -------------------------------------------------------
+# Handle SNMP autoconf call
+# -------------------------------------------------------
+
+# snmpconf : announce required MIBs
+if [ "$1" = "snmpconf" ]; then
+  echo "require $MIB_TEMP"
+  echo "require $MIB_SIGNAL"
+
+# -------------------------------------------------------
+# Handle configuration call
+# -------------------------------------------------------
+
+# config : read node configuration
+elif [ "$1" = "config" ]; then
+  # NAS general infos
+  echo "host_name $NAS_IP"
+  echo "graph_title Temperature & Signal ($NAS_IP)"
+#  echo "graph_vlabel Degree Celsius or %"
+  echo "graph_category other"
+  echo "graph_info Temperature & Signal Quality"
+
+  # internal temperature
+  echo "temp.label CPU Temp (°C)"
+  echo "temp.colour 00ff00"
+  echo "temp.info internal sensor"
+  echo "temp.warning :$CPU_WARNING"
+  echo "temp.critical :$CPU_CRITICAL"
+
+  # fan speed
+  echo "signal.info LTE Signal Quality"
+  echo "signal.label Quality (%)"
+  echo "signal.colour 0000ff"
+
+# -------------------------------------------------------
+# Handle data read call
+# -------------------------------------------------------
+
+# normal case : read temperatures
+else
+
+  # publish temperature levels
+  echo "temp.value $VALUE_TEMP"
+  echo "signal.value $VALUE_SIGNAL"
+fi
+
+exit 0
+
