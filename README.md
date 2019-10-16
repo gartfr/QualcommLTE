@@ -198,11 +198,13 @@ Use this command to discover most of SNMP sensors :
  Then cut/paste the adviced `ln` commands.
  Most will work, CPU, MEM, eth0 traffic/errors
 
+
 - Temperature and Radio status
 On the device temperature is not reported in the SNMP MIB. So I did a little script to get the temperature.
 This the file : `/usr/local/bin/opi-temp.sh`
 
 Also the quality of LTE signal can be monitored this way, with the file : `/usr/local/bin/opi-signal.sh`
+
 
 With the extend keywork in snmpd.conf file, the values will be exposed through SNMP. The following will help to find the OIDs.
 
@@ -210,6 +212,8 @@ With the extend keywork in snmpd.conf file, the values will be exposed through S
 snmpwalk -v2c -c <comm> <IP> .1.3.6.1.4.1.8072.1.3.2.3.1.2
 ```
 
-Then I had to create a specifi plugin for Munin to poll for these specific OIDs.
+Then I had to create a specific plugin for Munin to poll for these new OIDs. The file should be placed here :
+`/usr/share/munin/plugins/snmp__opi_extend`
+Then `ln` it as a usual plugin.
 
 
