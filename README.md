@@ -106,6 +106,7 @@ nmcli conn down "My GPRS Connection"              # Disable connection
 mmcli -b 0    # Give detailed information about bearer index 0 (Ip information, LTE network, etc...)
 ```
 
+
 ## 2. Software, Security and Routing
 Then, as my project is to make this modem working on a small OrangePi zero, and to connect it to my home network I will add a part of well known IP forwarding and IPTables.
 
@@ -171,6 +172,7 @@ COMMIT
 # Completed on Sat Jul 20 12:12:17 2019
 ```
 
+
 ## 3. Monitoring system and LTE
 
 SNMP Daemon
@@ -180,11 +182,34 @@ Then modify /etc/snmp/snmpd.conf
 agentAddress udp:161                        # to listen to the world
 rocommunity secret  10.0.0.0/16             # to only answer to your network or station
 
-# add extend script to monitor some specific values
+# add extend script to monitor some specific values (detailscoming after)
 extend  opi_temp      		/usr/local/bin/opi-temp.sh internal
 extend  opi_lte_quality		/usr/local/bin/opi-signal.sh signal
 ```
+The rest can be left default or adapted to your needs.
 
-Monitor Connection status
-- connectivity
-- radio status
+
+- Connectivity
+I'm using munin to monitor the device through SNMP.
+Use this command to discover most of SNMP sensors :
+ ```
+ munin-node-configure --shell --snmp <host|cidr> --snmpversion <ver> --snmpcommunity <comm>
+ ```
+ Then cut/paste the adviced `ln` commands.
+ Most will work, CPU, MEM, eth0 traffic/errors
+
+- Temperature and Radio status
+On the device temperature is not reported in the SNMP MIB. So I did a little script to get the temperature.
+This the file : `/usr/local/bin/opi-temp.sh`
+
+Also the quality of LTE signal can be monitored this way, with the file : `/usr/local/bin/opi-signal.sh`
+
+With the extend keywork in snmpd.conf file, the values will be exposed through SNMP. The following will help to find the OIDs.
+
+```
+snmpwalk -v2c -c <comm> <IP> .1.3.6.1.4.1.8072.1.3.2.3.1.2
+```
+
+Then I had to create a specifi plugin for Munin to poll for these specific OIDs.
+
+
