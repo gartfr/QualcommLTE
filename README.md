@@ -216,5 +216,5 @@ Then I had to create a specific plugin for Munin to poll for these new OIDs. The
 `/usr/share/munin/plugins/snmp__opi_extend`
 Then `ln` it as a usual plugin.
 
-![alt text](https://raw.githubusercontent.com/username/projectname/branch/path/to/img.png)
+![alt text](snmp_lte_router_localdomain_opi_extend-day.png)
 
