@@ -212,9 +212,12 @@ With the extend keywork in snmpd.conf file, the values will be exposed through S
 snmpwalk -v2c -c <comm> <IP> .1.3.6.1.4.1.8072.1.3.2.3.1.2
 ```
 
+
 Then I had to create a specific plugin for Munin to poll for these new OIDs. The file should be placed here :
 `/usr/share/munin/plugins/snmp__opi_extend`
 Then `ln` it as a usual plugin.
+And there we are !
+
 
 ![alt text](snmp_lte_router_localdomain_opi_extend-day.png)
 
