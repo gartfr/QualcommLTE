@@ -268,7 +268,7 @@ So I added a small script executed on stop action (before reboot) to also reset 
 /usr/local/bin/reload-modem
 ```
 #!/bin/bash
-echo "test123, `date`" > /root/blindfile.txt
+echo "test123, `date`" > /var/log/blindfile.txt
 /bin/echo -n -e "AT+CFUN=1,1\r\n" > /dev/ttyUSB1
 exit 0
 ```
