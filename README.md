@@ -257,3 +257,19 @@ protocol ospf {
 ```
 
 I will add ospf passphrase security :
+...
+
+
+## 4. TRICKS
+Upon restart the modem stays in an undefined status, which is due to the fact that Linux is rebooting but the modem is not because power is not removed from USB when doing a hot reboot.
+
+So I added a small script executed on stop action (before reboot) to also reset the modem before kernel boots again.
+
+/usr/local/bin/reload-modem
+```
+#!/bin/bash
+echo "test123, `date`" > /root/blindfile.txt
+/bin/echo -n -e "AT+CFUN=1,1\r\n" > /dev/ttyUSB1
+exit 0
+```
+
